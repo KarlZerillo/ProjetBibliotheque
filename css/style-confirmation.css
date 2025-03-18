@@ -1,0 +1,50 @@
+body
+{
+    font-family: 'Helvetica', Sans-serif !important;
+}
+
+.conteneur
+{
+    margin: auto;
+    padding: 50px 60px;
+    height: auto;
+    width: auto;
+    background: white;
+    border-radius: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-width: 900px;
+}
+
+h2
+{
+    color: #333;
+    font-size: 40px;
+    margin-bottom: 45px;
+    margin-top: 0px;
+    text-align: center;
+}
+
+p
+{
+    font-size: 19px;
+    color: #555;
+}
+
+.bouton
+{
+    background: linear-gradient(45deg, #FA8475, #FF5E62);
+    color: white;
+    padding: 18px 36px;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 21px;
+    margin-top: 90px;
+    font-weight: bold;
+}

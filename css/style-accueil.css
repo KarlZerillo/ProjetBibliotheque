@@ -1,0 +1,66 @@
+#conteneur-accueil
+{
+    display: flex;
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    width: 100%;
+    height: 100%; 
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Conteneur principal centré verticalement et horizontalement */
+.barre-haut, .barre-bas
+{
+    position: absolute;
+    font-weight: bold;
+    text-align: center;
+    color: #535353;
+}
+
+/* Barre supérieure avec texte centré */
+.barre-haut
+{
+    top: 35px;
+    font-size: 35px;
+}
+
+/* Barre inférieure avec texte centré */
+.barre-bas
+{
+    bottom: 35px;
+    font-size: 30px;
+}
+
+/* Style pour le titre principal */
+h1
+{
+    margin: 0;
+    text-align: center;
+    font-size: 60px;
+}
+
+/* Champ invisible pour la capture du badge */
+#badge
+{
+    width: 1920px;
+    height: 1080px;
+    opacity: 0; 
+}
+
+/* Animation pour fondre en sortie */
+.fade-out
+{
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+/* Animation pour fondre en entrée */
+.fade-in
+{
+    opacity: 0;
+    animation: fadeIn .5s forwards;
+}

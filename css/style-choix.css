@@ -1,0 +1,99 @@
+#conteneur-scan
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: -50;
+    left: 0;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Style pour le titre principal */
+h1
+{
+    font-size: 64px;
+    color: #444;
+}
+
+/* Style pour les paragraphes */
+p
+{
+    margin-top: 20px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* Style des images */
+.img
+{
+    width: 70px;
+    height: 70px;
+    margin-bottom: 10px;
+}
+
+/* Conteneur pour les options, centré horizontalement avec un écart entre chaque option */
+.options
+{
+    display: flex;
+    gap: 60px;
+    margin: 88px 0px;
+}
+
+/* Style pour chaque options (boîtes) dans le choix */
+.boite-options
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 320px;
+    height: 190px;
+    background: #fff;
+    border: 2px solid #bbb;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 15px;
+    cursor: pointer;
+}
+
+/* Style des images dans les boîtes d'options */
+.boite-options img
+{
+    width: 75px;
+    height: 75px;
+    margin-bottom: 30px;
+}
+
+/* Style du texte dans les boîtes d'options */
+.boite-options span
+{
+    font-size: 21px;
+    font-weight: bold;
+    color: #666;
+}
+
+/* Style pour le bouton de déconnexion, positionné en bas de la page */
+.bouton-deconnexion
+{
+    position: fixed;
+    bottom: 85px;
+}
+
+/* Autre styles du bouton de déconnexion */
+.bouton-deconnexion button
+{
+    padding: 20px 35px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(45deg, #f48172, #ef585a);
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 0px 30px rgba(0, 0, 0, 0.3);
+}
