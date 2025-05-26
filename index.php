@@ -2,25 +2,47 @@
     session_start(); // Démarre la session PHP
     $_SESSION['acces'] = false; // Initialise la session acces à false
     $_SESSION['admin'] = false; // Initialise la session admin à false
+    $_SESSION['selection'] = "";
+    $_SESSION['alerte1'] = true;
+    $_SESSION['alerte2'] = true;
+
+    if (!isset($_SESSION['dernierIdLu']))
+    {
+        $_SESSION['dernierIdLu'] = 0;
+        $_SESSION['ID'] = ""; 
+    }
+
+    if (isset($_POST['badge']) && !empty($_POST['badge']))
+    {
+        $_SESSION['ID'] = $_POST['badge']; // Stocke le badge dans la session
+
+        // Redirige vers la page choix.php
+        header("Location: choix.php");
+        exit();
+    }
 ?>
 <html lang="fr">
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Pade d'Accueil</title>
+        <title>Accueil</title>
         <link href="css/style.css" rel="stylesheet"/>
         <link href="css/style-accueil.css" rel="stylesheet"/>
+	<script src="js/souris.js"></script> <!-- script pour masquer la souris lorsqu'on ne clique pas -->
     </head>
     <body>
         <form id="badge-form" method="POST" action=""> <!-- Formulaire pour le badge -->
             <input type="hidden" name="badge" id="badge"> <!-- Champ caché -->
         </form>
 
-        <div id="conteneur-accueil">
+        <div class="conteneur-accueil">
             <?php
                 $heureActuelle = date("H"); // Récupère l'heure actuelle (format 24h)
                 $messageSalutation = ($heureActuelle >= 6 && $heureActuelle < 18) ? "Bonjour" : "Bonsoir"; // Choisit le message en fonction de l'heure
             ?>
+            <div class="contenu-centre">
+                <img src="images/logo.png" style="max-width: 160px; height: auto;">
+            </div>
             <h1><?php echo $messageSalutation?>. Veuillez scanner votre badge.</h1> <!-- Affiche un message de salutation -->
             <div id="heure" class="barre-haut"></div> <!-- Affiche l'heure en direct -->
             <div id="date" class="barre-bas"></div> <!-- Affiche la date en direct -->
@@ -30,7 +52,7 @@
             document.addEventListener("DOMContentLoaded", function ()
             {
                 let champBadge = document.getElementById("badge"); // Récupère l'élément du formulaire badge
-                let valeurBadge = ""; // Variable pour stocker la valeur scannée
+	            let valeurBadge = ""; // Variable pour stocker la valeur scannée
 
                 document.addEventListener("keypress", function (event)
                 {
@@ -42,8 +64,8 @@
                         {
                             champBadge.value = valeurBadge; // Insère la valeur scannée dans le champ caché
 
-                            // Redirection vers choix.php avec l'ID scanné dans l'URL
-                            window.location.href = "choix.php?id=" + valeurBadge;
+                            // Soumet le formulaire pour que PHP traite la valeur
+                            document.getElementById("badge-form").submit();
 
                             valeurBadge = ""; // Réinitialise la variable après l'envoi
                         }
@@ -102,6 +124,20 @@
 
             // Effacer la valeur de la vidéo du localStorage
             localStorage.removeItem("tempsVideo");
+
+            // Script vérifiant si un tag RFID a été scanné
+            setInterval(() =>
+            {
+                fetch("rfid-check-accueil.php")
+                    .then(response => response.json())
+                    .then(data =>
+                    {
+                        if (data.changement)
+                        {
+                            window.location.href = "choix.php";
+                        }
+                    })
+            }, 1000);
         </script>
     </body>
 </html>

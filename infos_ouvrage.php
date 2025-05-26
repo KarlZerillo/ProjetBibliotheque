@@ -13,8 +13,8 @@
         if ($ouvrage)
         {
             // Renvoyer les informations en format JSON
-            echo json_encode(
-            [
+            echo json_encode
+            ([
                 'titre' => $ouvrage['titre'],
                 'auteur' => $ouvrage['auteur'],
                 'type' => $ouvrage['type'],

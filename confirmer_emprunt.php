@@ -9,9 +9,10 @@
         exit();
     }
 
-    $query = $objet_PDO->prepare("SELECT * FROM utilisateurs WHERE badge_RFID = ?");
-    $query->execute([$_SESSION['ID']]);
-    $utilisateur = $query->fetch();
+    // Récupération des informations de l'utilisateur
+    $requeteUtilisateur = $objet_PDO->prepare("SELECT * FROM utilisateurs WHERE badge_RFID = ?");
+    $requeteUtilisateur->execute([$_SESSION['ID']]);
+    $utilisateur = $requeteUtilisateur->fetch();
 
     if (!$utilisateur)
     {
@@ -19,28 +20,31 @@
         exit();
     }
 
-    $utilisateur_ID = $utilisateur['badge_RFID'];
-    $date_emprunt = date("Y-m-d");
-    $date_limite_pret = date("Y-m-d", strtotime("+{$_SESSION['delai']} days"));
-    $_SESSION['date_limite_pret'] = $date_limite_pret;
+    $idUtilisateur = $utilisateur['badge_RFID'];
+    $dateEmprunt = date("Y-m-d");
+    $dateLimitePret = date("Y-m-d", strtotime("+{$_SESSION['delai']} days"));
+    $_SESSION['date_limite_pret'] = $dateLimitePret;
+    $dateRappel = date("Y-m-d", strtotime($dateLimitePret . " +{$_SESSION['delai_rappel']} days"));
 
     // Préparation de la requête d'insertion
-    $query = $objet_PDO->prepare("INSERT INTO emprunts (utilisateur_ID, ouvrage_ID, date_emprunt, date_retour, date_limite_pret) VALUES (?, ?, ?, NULL, ?)");
+    $requeteInsertionEmprunt = $objet_PDO->prepare("INSERT INTO emprunts (utilisateur_ID, ouvrage_ID, date_emprunt, date_retour, date_limite_pret, date_rappel) VALUES (?, ?, ?, NULL, ?, ?)");
+
+    // Préparation des autres requêtes
+    $requeteMajOuvrage = $objet_PDO->prepare("UPDATE ouvrages SET statut = 'Emprunté' WHERE ISBN = ?");
+    $requeteMajUtilisateur = $objet_PDO->prepare("UPDATE utilisateurs SET emprunts_en_cours = emprunts_en_cours + 1 WHERE badge_RFID = ?");
 
     // Insérer chaque livre du panier
     foreach ($_SESSION['panier'] as $isbn)
     {
         try
         {
-            $query->execute([$utilisateur_ID, $isbn, $date_emprunt, $date_limite_pret]);
-            $updateQuery = $objet_PDO->prepare("UPDATE ouvrages SET statut = 'Emprunté' WHERE ISBN = ?");
-            $updateQuery->execute([$isbn]);
-            $updateUserQuery = $objet_PDO->prepare("UPDATE utilisateurs SET emprunts_en_cours = emprunts_en_cours + 1 WHERE badge_RFID = ?");
-            $updateUserQuery->execute([$utilisateur_ID]);
-        } 
-        catch (PDOException $e)
+            $requeteInsertionEmprunt->execute([$idUtilisateur, $isbn, $dateEmprunt, $dateLimitePret, $dateRappel]);
+            $requeteMajOuvrage->execute([$isbn]);
+            $requeteMajUtilisateur->execute([$idUtilisateur]);
+        }
+        catch (PDOException $erreur)
         {
-            echo "Erreur lors de l'insertion dans la base de données: " . $e->getMessage();
+            echo "Erreur lors de l'insertion dans la base de données : " . $erreur->getMessage();
         }
     }
 
@@ -48,6 +52,7 @@
     unset($_SESSION['panier']);
 
     // Redirection vers la page de confirmation avec la date limite d'emprunt
+    $_SESSION['Action'] = "Emprunt";
     header("Location: confirmation.php");
     exit();
 ?>

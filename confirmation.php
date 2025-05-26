@@ -1,6 +1,10 @@
 <?php
     session_start();
-    $date_limite = $_SESSION['date_limite_pret'];
+
+    if (isset($_SESSION['date_limite_pret']))
+    {
+        $date_limite = $_SESSION['date_limite_pret'];
+    }
 
     if (!$_SESSION['acces']) // Si on n'a pas l'accès à la session
     {
@@ -47,11 +51,31 @@
             $_SESSION['ID'] = null; // On déconnecte l'utilisateur en vidant la variable de session ID
         ?>
         <div class="conteneur">
-            <h2>Merci pour votre emprunt, <?php echo $utilisateur['prenom'] ?> !</h2>
-            <p> La date limite pour rendre les ouvrages est fixée au <strong><?php echo formatDate($date_limite); ?></strong>.</p>
-            <a href="index.php" class="bouton" id="deconnexion">Déconnexion dans <span id="decompte">20</span> secondes...</a>
+            <?php if ($_SESSION['Action'] == "Emprunt")
+            {
+                ?>
+                <h2>Merci pour votre emprunt, <?php echo $utilisateur['prenom'] ?> !</h2>
+                <p> La date limite pour rendre les ouvrages est fixée au <strong><?php echo formatDate($date_limite); ?></strong>.</p>
+                <a href="index.php" class="bouton" id="deconnexion">Déconnexion dans <span id="decompte">20</span> secondes...</a>
+                <?php
+            }
+            else
+            {
+                ?>
+                <h2>Merci d'avoir effectué le retour, <?php echo $utilisateur['prenom'] ?> !</h2>
+                <p> Veuillez déposer les ouvrages dans le bac mis à disposition. </p>
+                <a href="index.php" class="bouton" style="background: linear-gradient(45deg, #edaa73, #ff945e); !important" id="deconnexion">Déconnexion dans <span id="decompte">20</span> secondes...</a>
+                <?php
+            }
+            ?>
         </div>
     </body>
+
+    <div class="watermark-fixe">
+        <span class="texte-watermark">Bibliothèque Saint Paul de Tartas</span>
+        <img src="images/logo.png" alt="Logo" style="height: 22px;">
+    </div>
+
     <script>
         let compteur = 20; // Début du décompte
         const decompte = document.getElementById("decompte");

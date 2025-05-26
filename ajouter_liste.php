@@ -26,6 +26,6 @@
     }
 
     //On réactualise la page
-    header("Location: emprunter.php");
+    header("Location: restituer.php");
     exit();
 ?>

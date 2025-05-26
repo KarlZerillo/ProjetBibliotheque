@@ -7,7 +7,7 @@ h2
 {
     margin-top: 20px;
     margin-bottom: 0px;
-    background: linear-gradient(45deg, #ed8173, #FF5E62);
+    background: linear-gradient(45deg, #edaa73, #ff945e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: bold;
@@ -43,7 +43,7 @@ h2
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    width: 340px;
+    width: 90%;
 }
 
 .conteneur-video
@@ -191,7 +191,7 @@ h2
 
 .bouton-valider
 {
-    background: linear-gradient(45deg, #FA8475, #FF5E62);
+    background: linear-gradient(45deg, #edaa73, #ff945e);
     color: white;
     display: flex;
     align-items: center;
@@ -405,7 +405,7 @@ h2
 
 .bouton-valider-recap
 {
-    background: linear-gradient(45deg, #FA8475, #FF5E62);
+    background: linear-gradient(45deg, #edaa73, #ff945e);
     color: white;
     display: flex;
     align-items: center;

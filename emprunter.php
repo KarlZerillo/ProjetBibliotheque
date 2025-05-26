@@ -1,5 +1,9 @@
 <?php
     session_start();
+
+    //On vide la variable de session SCAN RFID
+    $_SESSION['SCAN'] = null;
+
     include("connexionPDO.php"); // On se connecte à la base de données
 
     if (!$_SESSION['acces']) // Si on n'a pas l'accès à la session
@@ -68,25 +72,26 @@
         }
     }
 
-    $requete = $objet_PDO->prepare("SELECT limite_emprunts, delai_pret FROM administration WHERE id = 1"); // On récupère des informations dans la table administration où l'ID est égal à 1
+    $requete = $objet_PDO->prepare("SELECT limite_emprunts, delai_rappel, delai_pret FROM administration WHERE id = 1"); // On récupère des informations dans la table administration où l'ID est égal à 1
     $requete->execute(); // On exécute la requête préparée pour récupérer les données de la table
     $systeme = $requete->fetch(); // On récupère le résultat de la requête
 
     $limite_emprunts = $systeme['limite_emprunts']; // On définit la variable limite_emprunts selon la valeur qu'on a trouvé dans la table
-    $_SESSION['delai'] = $systeme['delai_pret']; // On définit la variable de session delai selon la valeur qu'on a trouvé dans la table
+    $_SESSION['delai_rappel'] = $systeme['delai_rappel']; // On définit la variable de session delai_rappel selon la valeur qu'on a trouvé dans la table
+    $_SESSION['delai'] = $systeme['delai_pret']; // On définit la variable de session delai pour le nombre de jours d'emprunts autorisés selon la valeur qu'on a trouvé dans la table
 
     $requete = $objet_PDO->prepare("SELECT emprunts_en_cours FROM utilisateurs WHERE badge_RFID = ?"); // On récupère des informations dans la table utilisateurs par rapport au badge_RFID
     $requete->execute([$_SESSION['ID']]); // On exécute la requête pour récupérer les données de la table en renseignant badge_RFID par la variable de session ID, ce qui va transferer l'ID de l'utilisateur connecté actuellement
     $utilisateur = $requete->fetch(); // On récupère le résultat de la requête
 
     $emprunts_utilisateur = $utilisateur['emprunts_en_cours']; // On définit la variable emprunts_utilisateur selon la valeur qu'on a trouvé dans la table
-    $limite_emprunts = $limite_emprunts - $emprunts_utilisateur - $panier; // On définit la variable limite_emprunts selon la limite d'emprunts autorisé, le nombre d'emprunts en cours de l'utilisateur, et le nombre d'articles dans le panier actuellement
+    $limite_emprunts = $limite_emprunts - $emprunts_utilisateur - $panier; // On définit la variable limite_emprunts selon la limite d'emprunts autorisé, le nombre d'emprunts en cours de l'utilisateur, et le nombre d'ouvrages dans le panier actuellement
 ?>
 <html lang="fr">
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Page d'Emprunt</title>
+        <title>Emprunter</title>
         <link href="css/style.css" rel="stylesheet"/>
         <link href="css/style-emprunt.css" rel="stylesheet"/>
         <script defer src="js/inactivite.js"></script> <!-- script d'inactivité -->
@@ -102,7 +107,7 @@
                     $bloqué = true; // On bloque le scan d'ouvrages
                     $limite_emprunts = 0; // Pour éviter des potentiels dépassements de valeurs, on force l'affichage des emprunts restants à 0;
                     
-                    if ($panier > 0) // Si il y a au moins un article dans le panier
+                    if ($panier > 0) // Si il y a au moins un ouvrage dans le panier
                     {
                         ?> <!-- On affiche le message d'erreur 1 -->
                         <h2 style="font-size: 40px; margin-bottom: 0px;">Vous avez <br> atteint la limite <br> d'emprunts</h2>
@@ -137,7 +142,7 @@
                     <h2 style="font-size: 40px; margin-bottom: 0px;">Scannez <br> les ouvrages</h2> <!-- Titre de la section scan -->
                     <p style="font-size: 20px; margin-top: 15px;">pour les ajouter au panier</p>
                     <div class="conteneur-video"> <!-- Ajout d'une animation vidéo -->
-                        <video autoplay loop muted playsinline width="400" poster="images/placeholder.png" id="maVideo">
+                        <video autoplay loop muted playsinline width="100%" poster="images/placeholder.png" id="maVideo">
                             <source src="images/scan.mp4" type="video/mp4">
                         </video>
                     </div>
@@ -151,7 +156,7 @@
                 <div class="conteneur-panier">
                     <h2 style="font-size: 26px;"> VOTRE PANIER </h2> <!-- Titre de la section panier -->
                     <?php 
-                        if ($panier > 0) // Si le nombre d'articles dans le panier est superieur à 0
+                        if ($panier > 0) // Si le nombre d'ouvrages dans le panier est superieur à 0
                         {
                             ?>
                             <div class="entete-panier"> 
@@ -171,7 +176,7 @@
                         {
                             foreach (array_reverse($_SESSION['panier']) as $index => $codebarre) // Pour chaque éléments dans le tableau, on inverse la lecture du tableau pour que les derniers éléments scannés apparaissent en haut de la liste
                             {
-                                $requete = $objet_PDO->prepare("SELECT * FROM ouvrages WHERE ISBN = ?"); // On récupère des informations dans la table administration selon la valeur de l'ISBN
+                                $requete = $objet_PDO->prepare("SELECT * FROM ouvrages WHERE ISBN = ?"); // On récupère des informations dans la table ouvrages selon la valeur de l'ISBN
                                 $requete->execute([$codebarre]); // On exécute la requête préparée pour récupérer les données de la table en renseignant l'ID du code barre qui viendra compléter la valeur de l'ISBN
                                 $ouvrage = $requete->fetch(); // On récupère le résultat de la requête
 
@@ -230,7 +235,7 @@
                                 </button>
                                 <?php
                             }
-                            else // Sinon si il y a des articles dans le panier
+                            else // Sinon si il y a des ouvrages dans le panier
                             {
                                 ?>
                                 <button class="bouton-retour" onclick="popupChoix()" style="font-weight: bold;">
@@ -244,7 +249,7 @@
                             <button type="submit" name="valider" class="bouton-valider" <?php if ($panier == 0 || ($bloqué && $panier == 0)) {echo 'style="opacity: 0.6;" disabled';} ?>> <!-- On grise le bouton si le panier est vide ou si nous sommes bloqués et que le panier est vide -->
                                 <img src="images/panier.png" class="icone-panier">
                                 <span style="font-size: 19px; text-align: left; line-height: 1.2;">
-                                    Valider vos <br> <strong style="font-size: 22px;"> choix </strong>
+                                    Valider les <br> <strong style="font-size: 22px;"> choix </strong>
                                 </span>
                                 <img src="images/chevron-right.png" style="margin-left: 47px;" class="icone-fleche">
                             </button>
@@ -266,11 +271,9 @@
                         {
                             setTimeout(() =>
                             {
-                                console.log("Phase 1");
                                 popupErreur.classList.add("erreur-active"); // On ajoute la classe "erreur-active" au popup "erreur" pour qu'il puisse apparaître
                                 setTimeout(() =>
                                 {
-                                    console.log("Phase 2");
                                     popupErreur.classList.remove("erreur-active"); // On retire la classe "erreur-active" du popup "erreur" pour qu'il puisse réapparaitre
                                 }, 3000); // Exécution après 3 secondes
                             }, 10);
@@ -292,7 +295,8 @@
         ?>
 
         <!-- Affiche un message de déconnexion si l'utilisateur est inactif pendant un certain temps -->
-        <div id="popup">
+        <div id="popup" style ="width: 595px;">
+            <img src="images/attention.png" alt="Attention" class="popup-icon">
             <p style="font-size: 19px;">Inactivité détectée ! Déconnexion dans <span id="decompte">10</span> secondes... <br> Votre panier sera abandonné.</p>
         </div>
 
@@ -300,7 +304,7 @@
         <div id="info">
             <div class="couverture" onclick="cacherPopup()"></div> <!-- Arrière plan foncé permettant de sortir du popup si nous cliquons dessus -->
             <?php
-                if ($limite_emprunts <= 0 && $panier <= 0) // Si la limite d'emprunt est inférieure ou égale à 0 et que le nombre d'articles dans le panier est inférieur ou égal à 0 -> situation lors de l'arrivée sur la page
+                if ($limite_emprunts <= 0 && $panier <= 0) // Si la limite d'emprunt est inférieure ou égale à 0 et que le nombre d'ouvrages dans le panier est inférieur ou égal à 0 -> situation lors de l'arrivée sur la page
                 {
                     ?>
                     <div class="boite-infos" style="display: block !important; height: 420px !important;">
@@ -411,6 +415,11 @@
             }
             $_SESSION['transition'] = false;
         ?>
+
+        <div class="watermark-fixe">
+            <span class="texte-watermark">Bibliothèque Saint Paul de Tartas</span>
+            <img src="images/logo.png" alt="Logo" style="height: 22px;">
+        </div>
         
         <script>
             // Script pour faire en sorte que la vidéo ne reprenne à 0 lors du rechargement de la page
@@ -466,8 +475,10 @@
                 conteneurInfo.style.opacity = 1;
                 conteneurInfo.style.pointerEvents = 'auto';
 
-                // Appel AJAX pour récupérer les infos de l'ouvrage à partir de l'ISBN
-                recupInfoOuvrage(isbn);
+                if (isbn != 0)
+                {
+                    recupInfoOuvrage(isbn); // Appel AJAX pour récupérer les infos de l'ouvrage à partir de l'ISBN
+                }
             }
 
             // Script pour afficher le popup de confirmation d'abandon
@@ -522,6 +533,20 @@
                 };
                 xhr.send();
             }
+
+            // Script vérifiant si un tag RFID a été scanné
+            setInterval(() =>
+            {
+                fetch("rfid-check-ouvrages.php")
+                    .then(response => response.json())
+                    .then(data =>
+                    {
+                        if (data.changement)
+                        {
+                            window.location.href = "ajouter_panier.php";
+                        }
+                    })
+            }, 1000);
         </script>
     </body>
 </html>

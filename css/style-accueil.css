@@ -1,4 +1,4 @@
-#conteneur-accueil
+.conteneur-accueil
 {
     display: flex;
     flex-direction: column; 
@@ -33,6 +33,14 @@
 {
     bottom: 35px;
     font-size: 30px;
+}
+
+/* Conetenu se situant entre l'heure et le titre d'accueil */
+.contenu-centre
+{
+    position: absolute;
+    top: 20%;
+    text-align: center;
 }
 
 /* Style pour le titre principal */

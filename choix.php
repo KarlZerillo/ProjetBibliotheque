@@ -2,10 +2,11 @@
     session_start(); // Démarre la session PHP
     $_SESSION['acces'] = false; // Initialise la session acces à false
     $_SESSION['panier'] = []; // Vide la variabe de session panier
+    $_SESSION['selection'] = "";
 
-    if (isset($_GET['id'])) // Vérifie si un ID est fourni via l'URL
+    if (isset($_SESSION['ID'])) // Vérifie si un ID est fourni dans la variable de session ID
     {
-        $id = $_GET['id'];
+        $id = $_SESSION['ID'];
     }
     else
     {
@@ -21,6 +22,7 @@
         <link href="css/style.css" rel="stylesheet"/>
         <link href="css/style-choix.css" rel="stylesheet"/>
         <script defer src="js/inactivite.js"></script> <!-- script d'inactivité -->
+        <script src="js/souris.js"></script> <!-- script pour masquer la souris lorsqu'on ne clique pas -->
     </head>
     <body>
         <?php
@@ -39,7 +41,6 @@
                 if ($utilisateur['actif'] == 1) // Vérifie si le compte est actif
                 {
                     $_SESSION['acces'] = true; // Donne l'accès à l'utilisateur sur les pages suivantes
-                    $_SESSION['ID'] = $id; // Garde l'ID de l'utilisateur dans une variable session
                     $acces = true;
                     // Si l'utilisateur est un administrateur, redirection vers le portail admin
                     if ($utilisateur['admin'] == 1) // Vérifie si l'utilisateur est un administrateur
@@ -120,7 +121,13 @@
 
         <!-- Affiche un message de déconnexion si l'utilisateur est inactif pendant un certain temps -->
         <div id="popup">
-            <p style="font-size: 19px;">Inactivité détectée ! Déconnexion dans <span id="decompte"> 10 </span> secondes...</p>
+            <img src="images/attention.png" alt="Attention" class="popup-icon">
+            <p style="font-size: 24px;"> Inactivité détectée ! Déconnexion dans <span id="decompte">10</span> secondes...</p>
+        </div>
+
+	    <div class="watermark-fixe">
+            <span class="texte-watermark">Bibliothèque Saint Paul de Tartas</span>
+            <img src="images/logo.png" alt="Logo" style="height: 22px;">
         </div>
 
         <script>
